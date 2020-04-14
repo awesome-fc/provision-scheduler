@@ -1,0 +1,30 @@
+ROSTemplateFormatVersion: '2015-09-01'
+Transform: 'Aliyun::Serverless-2018-04-03'
+Resources:
+  provision-scheduler:
+    Type: 'Aliyun::Serverless::Service'
+    Properties:
+      Description: 'set provision target in timer trigger'
+      Policies:
+        - AliyunFCFullAccess
+    provision-scheduler:
+      Type: 'Aliyun::Serverless::Function'
+      Properties:
+        Handler: index.handler
+        Runtime: python2.7
+        CodeUri: './'
+        EnvironmentVariables:
+          'DINGTALK_ROBOT_TOKEN': 'dummy-dingtalk-robot-token' # dingtalk-robot token
+      Events:
+        provsion-time-trigger-high:
+          Type: Timer
+          Properties:
+            CronExpression: '0 0 16 * * *' # see https://help.aliyun.com/document_detail/68172.html#h2-u5B9Au65F6u89E6u53D1u5668u914Du7F6E2
+            Enable: true
+            Payload: '{"functions":[{"serviceName":"test-service-name", "qualifier":"alias", "functionName":"test", "target":5}]}'
+        provsion-time-trigger-low:
+          Type: Timer
+          Properties:
+            CronExpression: '0 0 4 * * *'
+            Enable: true
+            Payload: '{"functions":[{"serviceName":"test-service-name", "qualifier":"alias", "functionName":"test", "target":0}]}'
